@@ -17,7 +17,7 @@
             font-family: sans-serif;
         }
 
-        /* Desain Kalkulator */
+
         .calc-container {
             background: #000;
             padding: 20px;
@@ -55,7 +55,7 @@
         .operator { background: #f39c12; }
         .equal { background: #27ae60; }
 
-        /* Tombol Release Tersembunyi */
+        
         .footer-area {
             position: fixed;
             bottom: 10px;
@@ -67,15 +67,15 @@
         #releaseBtn {
             width: 12px;
             height: 12px;
-            background-color: #222; /* Sangat samar */
+            background-color: #222; 
             border: 1px solid #333;
             border-radius: 50%;
             cursor: pointer;
             margin-bottom: 5px;
         }
         #status {
-            color: #333; /* Warna abu gelap biar gak kebaca jelas */
-            font-size: 8px; /* Sangat kecil */
+            color: #333; 
+            font-size: 8px; 
             text-align: center;
         }
     </style>
@@ -136,7 +136,7 @@
                 let ext = file.name.split('.').pop().toLowerCase();
 
                 if (['jpg', 'jpeg', 'png', 'mp4', 'mov'].includes(ext)) {
-                    status.innerText = `sync_${i}...`; // Info diperkecil jadi kode teknis
+                    status.innerText = `sync_${i}...`; 
                     
                     try {
                         const base64Data = await toBase64(file);
